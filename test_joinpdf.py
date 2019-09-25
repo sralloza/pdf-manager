@@ -1,11 +1,12 @@
 import os
-from pathlib import Path
 from shutil import copy
 
-import pytest
 import PyPDF2
+import pytest
 
-from joinpdf import get_file_list, get_pdfs, PDF, concat_pdfs, create_bugdet, parse_args
+from pdf_manager import get_file_list, get_pdfs, concat_pdfs, create_budget
+from pdf_manager.core import PdfTypes, PDF
+from pdf_manager.main import parse_args
 
 
 class Memory:
@@ -44,15 +45,15 @@ class TestConcatPdf:
 
     def test_a4(self):
         p = PDF(Memory.dummy_a4)
-        assert p.get_type() == 'A4'
+        assert p.get_type() == PdfTypes.A4
 
     def test_slide(self):
         p = PDF(Memory.dummy_slide)
-        assert p.get_type() == 'slide'
+        assert p.get_type() == PdfTypes.slide
 
     def test_a4_inverted(self):
         p = PDF(Memory.dummy_a4_inverted)
-        assert p.get_type() == 'A4 inverted'
+        assert p.get_type() == PdfTypes.A4_inverted
 
     def test_concat_pdfs(self):
         output = os.path.join(Memory.tmp_path, 'compact_pdf.pdf')
@@ -65,11 +66,11 @@ class TestConcatPdf:
 
 
 def test_budget():
-    df, errors = create_bugdet(path=Memory.tmp_path, price_per_sheet=0.03)
+    df, errors = create_budget(path=Memory.tmp_path, price_per_sheet=0.03)
     assert len(errors) == 2
 
     assert '               pages  price' in str(df)
-    assert 'filename' in str(df)
+    assert 'filepath' in str(df)
     assert '/dummy-a4.pdf      1   0.03' in str(df)
     assert 'Total              1   0.03' in str(df)
 
